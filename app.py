@@ -116,7 +116,7 @@ def var_MilhaoPop(df):
         df['duration'] = (pd.to_datetime(df['data']) - pd.to_datetime(df['data_100'])).dt.days.astype(float)
 
 def main ():
-    st.sidebar.image(Image.open('john1.png'), use_column_width=True, width=350, clamp=True)
+    st.sidebar.image(Image.open('JOHN.jpg'), use_column_width=True, width=350, clamp=True)
     st.sidebar.markdown('**E-Mail**: johndelara1@gmail.com \n'
                         '- [Linkedin](https://www.linkedin.com/in/johndelara1/) '
                         '- [Medium](https://medium.com/@johndelara1) '
@@ -124,7 +124,7 @@ def main ():
                         '- [GitHub](https://github.com/johndelara1)')
 
     st.sidebar.markdown('Opção Desejada')
-    selecao_secao = st.sidebar.radio('Seleciona a seção desejada', ('Resumo','Visualizar Base','Gráficos'))
+    selecao_secao = st.sidebar.radio('Seleciona a seção desejada', ('Gráficos', 'Resumo','Visualizar Base'))
 
     #Importandado dados Default
     df = pd.read_csv('arquivo_geral.csv',sep = ';', encoding = 'latin')
@@ -196,31 +196,6 @@ def main ():
        #Criando data set 'hoje'
     df_hoje = df[df['data']==max(df['data'])]
 
-    if selecao_secao == 'Resumo':
-        st.title('Resumo')
-        st.subheader('Descrição da ferramenta:')
-        st.write('A ferramenta auxilia na visualização de dados do COVID-19 no Brasil, ela foi desenvolvida para interagir com os dados disponibilizados pelo Ministério da Saúde.')
-        st.write('A ferramenta é totalmente interativa, portanto para gerar os dados você deve interagir com os filtros da barra lateral esquerda.')
-        st.write('Para atualizar os dados acesse a página https://covid.saude.gov.br/ ,faça o download do "Arquivo.Csv" e faça o Upload no ínicio da página.')
-        st.subheader('Descrição dos dados:')
-        st.markdown('<b>data:</b> Data do reporte, não significa que a morte ou o caso aconteceu neste dia, mas sim a data que o estado reportou ao ministério.',unsafe_allow_html=True)
-        st.markdown('<b>casosNovos: </b> Casos reportados na data.' ,unsafe_allow_html=True)
-        st.markdown('<b>casosAcumulados: </b> Casos somados até a data.' ,unsafe_allow_html=True)
-        st.markdown('<b>obitosNovos: </b> Óbitos reportados na data.' ,unsafe_allow_html=True)
-        st.markdown('<b>obitosAcumulados: </b> Óbitos somados até a data.' ,unsafe_allow_html=True)
-        st.markdown('<b>letalidade: </b> Letalidade é a relação entre óbitos e casos acumulados (óbitos/casos).' ,unsafe_allow_html=True)
-        st.markdown('<b>PopCenso2012: </b> População do estado segundo censo realizado em 2012.' ,unsafe_allow_html=True)
-        st.markdown('<b>obitoMilhaoPop: </b> Óbitos por milhão de habitantes, esse indicador é importante pois dá dimensão da proporção da doença em cada região.' ,unsafe_allow_html=True)
-        st.markdown('<b>casosMilhaoPop: </b> Casos por milhão de habitantes.' ,unsafe_allow_html=True)
-        st.markdown('<b>data_100: </b> Este parametro, traz o dia que a doença está, a partir do reporte do caso 100, como a pândemia está em tempos diferentes para cada região, esta variável põe as regiões na mesma linha do tempo.' ,unsafe_allow_html=True)
-        
-    if selecao_secao == 'Visualizar Base':
-        #Mostrando Data Set
-        st.subheader('Dados completos')
-        st.dataframe(df)
-        st.subheader('Dados do dia')
-        st.dataframe(df_hoje)
-
     if selecao_secao == 'Gráficos':
         #Grafico de barras
         st.title('Gráficos')
@@ -232,6 +207,41 @@ def main ():
         st.subheader(('Gráfico - Evolução à partir do Caso 100'))
         st.plotly_chart(plot_scatter(df,filter_var_sc, df['estado'].unique(),'duration'))
 
+    if selecao_secao == 'Resumo':
+        st.title('Resumo')
+        st.subheader('Descrição da ferramenta:')
+        st.write(
+            'A ferramenta auxilia na visualização de dados do COVID-19 no Brasil, ela foi desenvolvida para interagir com os dados disponibilizados pelo Ministério da Saúde.')
+        st.write(
+            'A ferramenta é totalmente interativa, portanto para gerar os dados você deve interagir com os filtros da barra lateral esquerda.')
+        st.write(
+            'Para atualizar os dados acesse a página https://covid.saude.gov.br/ ,faça o download do "Arquivo.Csv" e faça o Upload no ínicio da página.')
+        st.subheader('Descrição dos dados:')
+        st.markdown(
+            '<b>data:</b> Data do reporte, não significa que a morte ou o caso aconteceu neste dia, mas sim a data que o estado reportou ao ministério.',
+            unsafe_allow_html=True)
+        st.markdown('<b>casosNovos: </b> Casos reportados na data.', unsafe_allow_html=True)
+        st.markdown('<b>casosAcumulados: </b> Casos somados até a data.', unsafe_allow_html=True)
+        st.markdown('<b>obitosNovos: </b> Óbitos reportados na data.', unsafe_allow_html=True)
+        st.markdown('<b>obitosAcumulados: </b> Óbitos somados até a data.', unsafe_allow_html=True)
+        st.markdown('<b>letalidade: </b> Letalidade é a relação entre óbitos e casos acumulados (óbitos/casos).',
+                    unsafe_allow_html=True)
+        st.markdown('<b>PopCenso2012: </b> População do estado segundo censo realizado em 2012.',
+                    unsafe_allow_html=True)
+        st.markdown(
+            '<b>obitoMilhaoPop: </b> Óbitos por milhão de habitantes, esse indicador é importante pois dá dimensão da proporção da doença em cada região.',
+            unsafe_allow_html=True)
+        st.markdown('<b>casosMilhaoPop: </b> Casos por milhão de habitantes.', unsafe_allow_html=True)
+        st.markdown(
+            '<b>data_100: </b> Este parametro, traz o dia que a doença está, a partir do reporte do caso 100, como a pândemia está em tempos diferentes para cada região, esta variável põe as regiões na mesma linha do tempo.',
+            unsafe_allow_html=True)
+
+    if selecao_secao == 'Visualizar Base':
+        # Mostrando Data Set
+        st.subheader('Dados completos')
+        st.dataframe(df)
+        st.subheader('Dados do dia')
+        st.dataframe(df_hoje)
 
 
 if __name__ == '__main__':
