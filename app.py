@@ -7,6 +7,46 @@ import plotly.express as px
 import plotly.graph_objects as go
 import base64
 from PIL import Image
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from statsmodels.tsa.arima_model import ARIMA
+
+
+def is_authenticated(password):
+    return password == "admin"
+
+
+def generate_login_block():
+    block1 = st.empty()
+    block2 = st.empty()
+
+    return block1, block2
+
+
+def clean_blocks(blocks):
+    for block in blocks:
+        block.empty()
+
+
+def login(blocks):
+    blocks[0].markdown("""
+            <style>
+                input {
+                    -webkit-text-security: disc;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+
+    return blocks[1].text_input('Password')
+
+
+
+
+
+login_blocks = generate_login_block()
+password = login(login_blocks)
+
+
+
 
 def sortear_cor():
     color_list=['#4682B4','#90EE90','#BC8F8F','#DDA0DD','#FFB6C1','#FF6347','#F0E68C','#FF6347','#483D8B']
@@ -115,7 +155,20 @@ def var_MilhaoPop(df):
         df['casosMilhaoPop'] = (df['casosAcumulados']/(df['PopCenso2012']/1000000)).astype(float)
         df['duration'] = (pd.to_datetime(df['data']) - pd.to_datetime(df['data_100'])).dt.days.astype(float)
 
+def arima(data, texto, time_prediction):
+    data = data[f'{texto}'].reset_index(drop=True)
+    # fit model
+    model = ARIMA(data, order=(1, 1, 1))
+    model_fit = model.fit(disp=False)
+    # make prediction
+    yhat = model_fit.predict(len(data), len(data) + time_prediction-1, typ='levels')
+    return yhat
+
+
+
 def main ():
+    st.sidebar.header('olá John!')
+    st.balloons()
     st.sidebar.image(Image.open('JOHN.jpg'), use_column_width=True, width=350, clamp=True)
     st.sidebar.markdown('**E-Mail**: johndelara1@gmail.com \n'
                         '- [Linkedin](https://www.linkedin.com/in/johndelara1/) '
@@ -124,29 +177,29 @@ def main ():
                         '- [GitHub](https://github.com/johndelara1)')
 
     st.sidebar.markdown('Opção Desejada')
-    selecao_secao = st.sidebar.radio('Seleciona a seção desejada', ('Gráficos', 'Resumo','Visualizar Base'))
+    selecao_secao = st.sidebar.selectbox('Seleciona a seção desejada', ('Gráficos', 'Resumo','Visualizar Base'))
 
     #Importandado dados Default
     df = pd.read_csv('arquivo_geral.csv',sep = ';', encoding = 'latin')
     pop = pd.read_csv('popCenso2012.csv',sep = ';',encoding = 'latin')
-   
+
 
     #Definindo Layout topo
     st.image("https://covid.saude.gov.br/assets/imgs/logo-app.png",  width= 500)
-   
+
     #Seleção da seção
-    
+
     #Sessão para import de dados
     st.write('Para atualizar os dados acesse a página https://covid.saude.gov.br/ ,faça o download do "Arquivo.Csv" e faça o Upload na sessão abaixo.')
     file = st.file_uploader('Faça o upload do arquivo csv', type = 'csv', encoding = 'latin')
     if file is not None:
         df=pd.read_csv(file, sep = ';')
-        
+
     #tratando dataset
     tratar_df(df) #função para tratar variaveis
     df_caso_100 = df[['estado','casosAcumulados','data']][df['casosAcumulados']>=100]
     df_caso_100 =df_caso_100.groupby(['estado']).agg({'data':'min'})
-    df_caso_100.columns = ['data_100'] 
+    df_caso_100.columns = ['data_100']
     df_caso_100.head(30)
     df = df.merge(df_caso_100, left_on = 'estado', right_on = 'estado', how ='left')
     df = df.merge(pop,left_on = 'estado', right_on = 'UF', how = 'left') #Join com base de Censo
@@ -154,7 +207,7 @@ def main ():
     var_MilhaoPop(df) #Criar variaiveis de população
     max_data_import = max(df['data'])
 
-    
+
     #Seletor de Data de Última Data
     st.sidebar.markdown('Filtros para Gráficos')
     filter_date = st.sidebar.date_input('Selecione data fim da visualização', max(df['data']))
@@ -163,29 +216,29 @@ def main ():
         max_date = filter_date
     else:
         st.sidebar.error('Data selecionada é maior do que a última disponível.')
-   
+
     df = df[df['data']<= str(max_date)]
     st.sidebar.markdown('Dados atualizados até: {}'.format(format(max_data_import,'%d/%m/%Y')))
-    
+
     #Seletor de Estado
     filter_estado = st.sidebar.multiselect('Selecione os Estados',  df['Unidade da Federação'].unique())
     if filter_estado == []:
         pass
     else:
-       df = df[df['Unidade da Federação'].isin(filter_estado)]
+        df = df[df['Unidade da Federação'].isin(filter_estado)]
 
     #Seletor de Variaveis
     aux = pd.DataFrame({'colunas' : df.columns, 'tipos' : df.dtypes})
     lista = list(aux['colunas'].loc[(aux['tipos'] == 'float')])
     df[lista]=df[lista].apply(lambda x:round(x,2))
-    
+
     #filter bar
     filter_var = st.sidebar.multiselect('Selecione a Variavel Gráfico de Barras', lista)
     if filter_var == []:
         filter_var = lista
     else:
        pass
-    
+
     #filter scattter
     filter_var_sc = st.sidebar.multiselect('Selecione a Variavel Gráfico de Linhas', lista)
     if filter_var_sc == []:
@@ -197,15 +250,49 @@ def main ():
     df_hoje = df[df['data']==max(df['data'])]
 
     if selecao_secao == 'Gráficos':
+        from datetime import timedelta, date
+        # Previsão dos próximos 7 dias
+        dias_de_previsao = 7
+        predict_df = df.groupby([df.data.dt.year, df.data.dt.month, df.data.dt.day]).sum()
+        predict_casosNovos = pd.DataFrame(arima(predict_df,
+                                   'casosNovos',
+                                   dias_de_previsao))
+        predict_obitosNovos = arima(predict_df,
+                                   'obitosNovos',
+                                   dias_de_previsao)
+
+
+        st.subheader(
+            ('Previsão até o dia - ' + format(format(max_date + timedelta(days=dias_de_previsao), '%d/%m/%Y'))))
+
+        df_teste = predict_df.sort_index(ascending=False).head(dias_de_previsao).filter(items=['casosNovos', 'obitosNovos'])
+
+        datelist = pd.date_range(max_date + timedelta(days=1), periods=dias_de_previsao)
+        df_teste.index = datelist
+        df_teste['casosNovos'] = list(predict_casosNovos[0])
+        df_teste['casosNovos'] = df_teste['casosNovos'].astype(int)
+        df_teste['obitosNovos'] = list(predict_obitosNovos)
+        df_teste['obitosNovos'] = df_teste['obitosNovos'].astype(int)
+        #df_teste = df_teste.reset_index()
+
+        #df_teste.columns = ["data", "casosNovos", "obitosNovos"]
+        df_anterior = df.filter(items=['data', 'casosNovos', 'obitosNovos'])
+        df_anterior = df_anterior.groupby([df_anterior.data]).sum()
+        df_anterior = df_anterior.sort_values(by=['data'], ascending=False)
+
+        juncaoDeDados = pd.concat([df_anterior, df_teste]).reset_index()
+        st.dataframe(juncaoDeDados.sort_values(by=['index'], ascending=False))
+        #
+
         #Grafico de barras
         st.title('Gráficos')
         st.subheader(('Gráfico - Resumo de Dados -'+format(format(max_date,'%d/%m/%Y'))))
-        st.plotly_chart(plot_bar(df_hoje,filter_var)) #Chamando função para plotar gráfico plot_bar
+        st.plotly_chart(plot_bar(df_hoje, filter_var)) #Chamando função para plotar gráfico plot_bar
         st.subheader(('Gráfico - Evolução na Linha do Tempo'))
-        st.plotly_chart(plot_scatter(df,filter_var_sc, df['estado'].unique(),'data')) #Chamando função para plotar gráfico plot_bar
+        st.plotly_chart(plot_scatter(df, filter_var_sc, df['estado'].unique(), 'data')) #Chamando função para plotar gráfico plot_bar
         df = df[df['duration']>=0]
         st.subheader(('Gráfico - Evolução à partir do Caso 100'))
-        st.plotly_chart(plot_scatter(df,filter_var_sc, df['estado'].unique(),'duration'))
+        st.plotly_chart(plot_scatter(df, filter_var_sc, df['estado'].unique(), 'duration'))
 
     if selecao_secao == 'Resumo':
         st.title('Resumo')
@@ -243,7 +330,11 @@ def main ():
         st.subheader('Dados do dia')
         st.dataframe(df_hoje)
 
+if is_authenticated(password):
+    #st.success('Parabéns, você logou!')
+    clean_blocks(login_blocks)
+    if __name__ == '__main__':
+        main()
 
-if __name__ == '__main__':
-    main()
-
+elif password:
+    st.error("Por favor verifique sua senha")
