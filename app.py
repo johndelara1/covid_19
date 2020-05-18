@@ -42,8 +42,8 @@ def login(blocks):
 
 
 
-login_blocks = generate_login_block()
-password = login(login_blocks)
+#login_blocks = generate_login_block()
+#password = login(login_blocks)
 
 
 
@@ -167,8 +167,6 @@ def arima(data, texto, time_prediction):
 
 
 def main ():
-    st.sidebar.header('olá John!')
-    st.balloons()
     st.sidebar.image(Image.open('JOHN.jpg'), use_column_width=True, width=350, clamp=True)
     st.sidebar.markdown('**E-Mail**: johndelara1@gmail.com \n'
                         '- [Linkedin](https://www.linkedin.com/in/johndelara1/) '
@@ -252,36 +250,36 @@ def main ():
     if selecao_secao == 'Gráficos':
         from datetime import timedelta, date
         # Previsão dos próximos 7 dias
-        dias_de_previsao = 7
-        predict_df = df.groupby([df.data.dt.year, df.data.dt.month, df.data.dt.day]).sum()
-        predict_casosNovos = pd.DataFrame(arima(predict_df,
-                                   'casosNovos',
-                                   dias_de_previsao))
-        predict_obitosNovos = arima(predict_df,
-                                   'obitosNovos',
-                                   dias_de_previsao)
+        #dias_de_previsao = 7
+        #predict_df = df.groupby([df.data.dt.year, df.data.dt.month, df.data.dt.day]).sum()
+        #predict_casosNovos = pd.DataFrame(arima(predict_df,
+        #                           'casosNovos',
+        #                           dias_de_previsao))
+        #predict_obitosNovos = arima(predict_df,
+        #                           'obitosNovos',
+        #                           dias_de_previsao)
 
 
-        st.subheader(
-            ('Previsão até o dia - ' + format(format(max_date + timedelta(days=dias_de_previsao), '%d/%m/%Y'))))
+        #st.subheader(
+        #    ('Previsão até o dia - ' + format(format(max_date + timedelta(days=dias_de_previsao), '%d/%m/%Y'))))
 
-        df_teste = predict_df.sort_index(ascending=False).head(dias_de_previsao).filter(items=['casosNovos', 'obitosNovos'])
+        #df_teste = predict_df.sort_index(ascending=False).head(dias_de_previsao).filter(items=['casosNovos', 'obitosNovos'])
 
-        datelist = pd.date_range(max_date + timedelta(days=1), periods=dias_de_previsao)
-        df_teste.index = datelist
-        df_teste['casosNovos'] = list(predict_casosNovos[0])
-        df_teste['casosNovos'] = df_teste['casosNovos'].astype(int)
-        df_teste['obitosNovos'] = list(predict_obitosNovos)
-        df_teste['obitosNovos'] = df_teste['obitosNovos'].astype(int)
+        #datelist = pd.date_range(max_date + timedelta(days=1), periods=dias_de_previsao)
+        #df_teste.index = datelist
+        #df_teste['casosNovos'] = list(predict_casosNovos[0])
+        #df_teste['casosNovos'] = df_teste['casosNovos'].astype(int)
+        #df_teste['obitosNovos'] = list(predict_obitosNovos)
+        #df_teste['obitosNovos'] = df_teste['obitosNovos'].astype(int)
         #df_teste = df_teste.reset_index()
 
         #df_teste.columns = ["data", "casosNovos", "obitosNovos"]
-        df_anterior = df.filter(items=['data', 'casosNovos', 'obitosNovos'])
-        df_anterior = df_anterior.groupby([df_anterior.data]).sum()
-        df_anterior = df_anterior.sort_values(by=['data'], ascending=False)
+        #df_anterior = df.filter(items=['data', 'casosNovos', 'obitosNovos'])
+        #df_anterior = df_anterior.groupby([df_anterior.data]).sum()
+        #df_anterior = df_anterior.sort_values(by=['data'], ascending=False)
 
-        juncaoDeDados = pd.concat([df_anterior, df_teste]).reset_index()
-        st.dataframe(juncaoDeDados.sort_values(by=['index'], ascending=False))
+        #juncaoDeDados = pd.concat([df_anterior, df_teste]).reset_index()
+        #st.dataframe(juncaoDeDados.sort_values(by=['index'], ascending=False))
         #
 
         #Grafico de barras
@@ -330,11 +328,14 @@ def main ():
         st.subheader('Dados do dia')
         st.dataframe(df_hoje)
 
-if is_authenticated(password):
-    #st.success('Parabéns, você logou!')
-    clean_blocks(login_blocks)
-    if __name__ == '__main__':
-        main()
+#if is_authenticated(password):
+#    #st.success('Parabéns, você logou!')
+#    clean_blocks(login_blocks)
+#    if __name__ == '__main__':
+#        main()
 
-elif password:
-    st.error("Por favor verifique sua senha")
+#elif password:
+#    st.error("Por favor verifique sua senha")
+
+if __name__ == '__main__':
+    main()
