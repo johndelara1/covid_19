@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from bs4 import BeautifulSoup as bs
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
