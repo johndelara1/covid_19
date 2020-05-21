@@ -164,7 +164,40 @@ def arima(data, texto, time_prediction):
     yhat = model_fit.predict(len(data), len(data) + time_prediction-1, typ='levels')
     return yhat
 
+def tabela_previsao (df, max_date):
+    from datetime import timedelta, date
+    # Previsão dos próximos 7 dias
+    dias_de_previsao = 7
+    predict_df = df.groupby([df.data.dt.year, df.data.dt.month, df.data.dt.day]).sum()
+    predict_casosNovos = pd.DataFrame(arima(predict_df,
+                                            'casosNovos',
+                                            dias_de_previsao))
+    predict_obitosNovos = arima(predict_df,
+                                'obitosNovos',
+                                dias_de_previsao)
 
+    st.subheader(
+        ('Previsão até o dia - ' + format(format(max_date + timedelta(days=dias_de_previsao), '%d/%m/%Y'))))
+
+    df_teste = predict_df.sort_index(ascending=False).head(dias_de_previsao).filter(items=['casosNovos', 'obitosNovos'])
+
+    datelist = pd.date_range(max_date + timedelta(days=1), periods=dias_de_previsao)
+    df_teste.index = datelist
+    df_teste['casosNovos'] = list(predict_casosNovos[0])
+    df_teste['casosNovos'] = df_teste['casosNovos'].astype(int)
+    df_teste['obitosNovos'] = list(predict_obitosNovos)
+    df_teste['obitosNovos'] = df_teste['obitosNovos'].astype(int)
+    df_teste = df_teste.reset_index()
+
+    df_teste.columns = ["data", "casosNovos", "obitosNovos"]
+    df_anterior = df.filter(items=['data', 'casosNovos', 'obitosNovos'])
+    df_anterior = df_anterior.groupby([df_anterior.data]).sum()
+    df_anterior = df_anterior.sort_values(by=['data'], ascending=False)
+
+    juncaoDeDados = pd.concat([df_anterior, df_teste]).reset_index(drop=True)
+    final = juncaoDeDados.sort_values(by=['data'], ascending=False)
+    final = final.filter(items=['data', 'casosNovos', 'obitosNovos'])
+    st.dataframe(final)
 
 def main ():
     st.sidebar.image(Image.open('JOHN.jpg'), use_column_width=True, width=350, clamp=True)
@@ -248,39 +281,6 @@ def main ():
     df_hoje = df[df['data']==max(df['data'])]
 
     if selecao_secao == 'Gráficos':
-        from datetime import timedelta, date
-        # Previsão dos próximos 7 dias
-        #dias_de_previsao = 7
-        #predict_df = df.groupby([df.data.dt.year, df.data.dt.month, df.data.dt.day]).sum()
-        #predict_casosNovos = pd.DataFrame(arima(predict_df,
-        #                           'casosNovos',
-        #                           dias_de_previsao))
-        #predict_obitosNovos = arima(predict_df,
-        #                           'obitosNovos',
-        #                           dias_de_previsao)
-
-
-        #st.subheader(
-        #    ('Previsão até o dia - ' + format(format(max_date + timedelta(days=dias_de_previsao), '%d/%m/%Y'))))
-
-        #df_teste = predict_df.sort_index(ascending=False).head(dias_de_previsao).filter(items=['casosNovos', 'obitosNovos'])
-
-        #datelist = pd.date_range(max_date + timedelta(days=1), periods=dias_de_previsao)
-        #df_teste.index = datelist
-        #df_teste['casosNovos'] = list(predict_casosNovos[0])
-        #df_teste['casosNovos'] = df_teste['casosNovos'].astype(int)
-        #df_teste['obitosNovos'] = list(predict_obitosNovos)
-        #df_teste['obitosNovos'] = df_teste['obitosNovos'].astype(int)
-        #df_teste = df_teste.reset_index()
-
-        #df_teste.columns = ["data", "casosNovos", "obitosNovos"]
-        #df_anterior = df.filter(items=['data', 'casosNovos', 'obitosNovos'])
-        #df_anterior = df_anterior.groupby([df_anterior.data]).sum()
-        #df_anterior = df_anterior.sort_values(by=['data'], ascending=False)
-
-        #juncaoDeDados = pd.concat([df_anterior, df_teste]).reset_index()
-        #st.dataframe(juncaoDeDados.sort_values(by=['index'], ascending=False))
-        #
 
         #Grafico de barras
         st.title('Gráficos')
@@ -322,6 +322,7 @@ def main ():
             unsafe_allow_html=True)
 
     if selecao_secao == 'Visualizar Base':
+        tabela_previsao(df, max_date)
         # Mostrando Data Set
         st.subheader('Dados completos')
         st.dataframe(df)
