@@ -9,7 +9,7 @@ import os
 import glob
 
 class Transform:
-    arquivo_xlsx = glob.glob("*.xlsx")[0]
+    arquivo_xlsx = glob.glob("/home/vinho/Downloads/*.xlsx")[0]
     df = pd.read_excel(arquivo_xlsx)
     df = df[["regiao", "estado", "data", "casosAcumulado", "obitosAcumulado"]]
     df1 = df[df.regiao.eq('Brasil')]

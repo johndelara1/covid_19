@@ -3,11 +3,16 @@ from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 from time import sleep
 
+class Raspagem:
+    def __init__(self, driver):
+        self.driver = driver
+        self.url_site = f'https://covid.saude.gov.br/'
+        ff.get(self.url_site)
+        self.botao = ff.find_element_by_xpath(
+            '/html/body/app-root/ion-app/ion-router-outlet/app-home/ion-content/div[1]/div[2]/ion-button'
+        )
+        self.botao.click()
+        sleep(1)
 ff = webdriver.Chrome()
-url_site = f'https://covid.saude.gov.br/'
-ff.get(url_site)
-botao = ff.find_elements_by_css_selector(
-    '[class="btn-white md button button-solid button-has-icon-only ion-activatable ion-focusable hydrated ion-activated"]'
-)
-#print(botao)
-botao.click()
+raspagem = Raspagem(ff)
+ff.quit()

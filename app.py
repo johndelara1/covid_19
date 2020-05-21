@@ -12,7 +12,10 @@ from statsmodels.tsa.arima_model import ARIMA
 import glob
 
 try:
-    xlsx = glob.glob("*.xlsx")[0]
+    xlsx = glob.glob("/home/vinho/Downloads/*.xlsx")[0]
+except NameError:
+    from raspagem_covid import Raspagem
+    xlsx = glob.glob("/home/vinho/Downloads/*.xlsx")[0]
 except:
     xlsx = 'null'
 if xlsx != 'null':
