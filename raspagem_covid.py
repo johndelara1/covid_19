@@ -12,7 +12,7 @@ class Raspagem:
             '/html/body/app-root/ion-app/ion-router-outlet/app-home/ion-content/div[1]/div[2]/ion-button'
         )
         self.botao.click()
-        sleep(1)
+        sleep(10)
 ff = webdriver.Chrome()
 raspagem = Raspagem(ff)
 ff.quit()
