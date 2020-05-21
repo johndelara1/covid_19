@@ -49,14 +49,8 @@ def login(blocks):
     return blocks[1].text_input('Password')
 
 
-
-
-
 #login_blocks = generate_login_block()
 #password = login(login_blocks)
-
-
-
 
 def sortear_cor():
     color_list=['#4682B4','#90EE90','#BC8F8F','#DDA0DD','#FFB6C1','#FF6347','#F0E68C','#FF6347','#483D8B']
