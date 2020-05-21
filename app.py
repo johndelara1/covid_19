@@ -48,6 +48,7 @@ def login(blocks):
 
     return blocks[1].text_input('Password')
 
+
 #login_blocks = generate_login_block()
 #password = login(login_blocks)
 
@@ -82,7 +83,6 @@ def plot_bar(df, list_var):
                        r=20,
                        t=110))
     return fig
-
 
 def plot_scatter(df, list_var,list_estado,x):
     df=df[df[list_var[0]]>0]
