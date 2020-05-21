@@ -68,7 +68,6 @@ def plot_bar(df, list_var):
               textposition='outside'
              ))
 
-    
     fig = go.Figure(data=data_bar
                 )
 
