@@ -61,7 +61,6 @@ def plot_bar(df, list_var):
     x_values = df['estado']
     data_bar = []
 
-
     for i in list_var:
              cor_bar = sortear_cor()
              data_bar.append(go.Bar(name=i, x=x_values, y=df[i],orientation='v',
