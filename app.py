@@ -322,7 +322,7 @@ def main ():
             unsafe_allow_html=True)
 
     if selecao_secao == 'Visualizar Base':
-        tabela_previsao(df, max_date)
+        tabela_previsao(df, max_date)13
         # Mostrando Data Set
         st.subheader('Dados completos')
         st.dataframe(df)
