@@ -48,7 +48,6 @@ def login(blocks):
 
     return blocks[1].text_input('Password')
 
-
 #login_blocks = generate_login_block()
 #password = login(login_blocks)
 
