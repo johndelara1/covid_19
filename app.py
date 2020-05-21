@@ -9,7 +9,14 @@ import base64
 from PIL import Image
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.arima_model import ARIMA
+import glob
 
+try:
+    xlsx = glob.glob("*.xlsx")[0]
+except:
+    xlsx = 'null'
+if xlsx != 'null':
+    from transform_df import Transform
 
 def is_authenticated(password):
     return password == "admin"
