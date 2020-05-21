@@ -71,7 +71,6 @@ def plot_bar(df, list_var):
     
     fig = go.Figure(data=data_bar
                 )
-  
 
     fig.update_layout(barmode='group',
                       title_text = ('Valores '+' por'+' Estado'),
